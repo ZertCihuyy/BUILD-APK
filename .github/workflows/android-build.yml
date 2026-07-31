@@ -1,7 +1,7 @@
 name: Build and Release Private Repo APK
 
 on:
-  workflow_dispatch: # Supaya ada tombol 'Run workflow' manual
+  workflow_dispatch:
   push:
     branches: [ "main" ]
 
@@ -13,7 +13,7 @@ jobs:
       contents: write
 
     steps:
-    # 1. Checkout Repo Private CIHUYNIME-TV pakai Secret Token
+    # 1. Checkout Repo Private pakai Secret Token
     - name: Checkout Private Repository
       uses: actions/checkout@v4
       with:
@@ -37,18 +37,19 @@ jobs:
     - name: Build APK with Gradle
       run: ./gradlew assembleDebug
 
-    # 5. Upload APK ke Artifacts (Mencari semua file APK otomatis)
+    # 5. Upload APK ke Artifacts (Spesifik ke folder output)
     - name: Upload APK to Artifacts
       uses: actions/upload-artifact@v4
       with:
         name: CIHUYNIME-TV-Debug-APK
-        path: '**/*.apk'
+        path: app/build/outputs/apk/debug/*.apk
+        retention-days: 7
 
     # 6. Publish ke Halaman Releases Repo Public
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
-        files: '**/*.apk' # Mengunggah APK yang ditemukan ke Release
+        files: app/build/outputs/apk/debug/*.apk
         tag_name: release-v${{ github.run_number }}
         name: "CIHUYNIME-TV Build v${{ github.run_number }}"
         body: "Automated build of CIHUYNIME-TV from private repository."
